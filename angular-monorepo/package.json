@@ -4,9 +4,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
-    "build:my-app": "ng build my-app",
+    "build": "ng build my-app",
     "build:test-app": "ng build test-app",
+    "deploy": "npm run build && wrangler deploy --env=\"\"",
+    "deploy:test-app": "npm run build:test-app && wrangler deploy -e test-app",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:my-app": "node dist/my-app/server/server.mjs",
@@ -39,6 +40,7 @@
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wrangler": "^4.85.0"
   }
 }

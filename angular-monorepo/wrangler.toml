@@ -1,0 +1,28 @@
+# Cloudflare Workers — static assets for Angular (browser build output).
+# Wrangler and CI run `npm run build` by default; that must be unambiguous in a multi-app workspace.
+#
+# my-app (top-level; use an explicit empty env to avoid the multi-env deploy warning):
+#   npm run deploy
+#   npx wrangler deploy --env=""
+# test-app:
+#   npm run deploy:test-app
+#   npx wrangler deploy -e test-app
+name = "angular-monorepo"
+compatibility_date = "2026-04-25"
+compatibility_flags = [ "nodejs_compat" ]
+
+[observability]
+enabled = true
+
+# --- my-app (default) ---
+[assets]
+directory = "dist/my-app/browser"
+not_found_handling = "single-page-application"
+
+# --- test-app: wrangler deploy -e test-app (after: npm run build:test-app) ---
+[env.test-app]
+name = "angular-monorepo-test-app"
+
+[env.test-app.assets]
+directory = "dist/test-app/browser"
+not_found_handling = "single-page-application"
